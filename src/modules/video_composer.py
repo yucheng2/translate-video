@@ -62,10 +62,10 @@ class VideoComposer:
             subtitle_clips = []
             for sub in subtitles:
                 txt_clip = TextClip(
-                    sub['text'],
-                    fontsize=self.config.get('subtitle_font_size', 24),
-                    color=self.config.get('subtitle_font_color', 'white'),
-                    font='Arial'
+                    text=sub['text'],
+                    font='Arial',
+                    font_size=self.config.get('subtitle_font_size', 24),
+                    color=self.config.get('subtitle_font_color', 'white')
                 )
                 txt_clip = txt_clip.set_position('center').set_start(sub['start']).set_end(sub['end'])
                 subtitle_clips.append(txt_clip)
