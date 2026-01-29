@@ -9,7 +9,7 @@ from src.utils.logger import Logger
 from src.modules.audio_extractor import AudioExtractor
 from src.modules.subtitle_extractor import SubtitleExtractor
 from src.modules.subtitle_translator import SubtitleTranslator
-from src.modules.video_composer import VideoComposer
+# from src.modules.video_composer import VideoComposer
 
 
 class VideoProcessor:
@@ -20,7 +20,7 @@ class VideoProcessor:
         self.audio_extractor = AudioExtractor(self.config)
         self.subtitle_extractor = SubtitleExtractor(self.config)
         self.subtitle_translator = SubtitleTranslator(self.config, openai_api_key)
-        self.video_composer = VideoComposer(self.config)
+        # self.video_composer = VideoComposer(self.config)
     
     def process_video(self, video_path, language=None, translate_to='en'):
         try:
@@ -28,18 +28,18 @@ class VideoProcessor:
             
             audio_path = self.audio_extractor.extract_audio(video_path)
             subtitle_path, result = self.subtitle_extractor.extract_subtitle(audio_path, language=language)
-            output_path = self.video_composer.add_subtitles(video_path, subtitle_path)
+            # output_path = self.video_composer.add_subtitles(video_path, subtitle_path)
             
             translated_subtitle_path = self.subtitle_translator.translate_subtitle(subtitle_path, translate_to)
-            translated_video_path = self.video_composer.add_subtitles(video_path, translated_subtitle_path)
+            # translated_video_path = self.video_composer.add_subtitles(video_path, translated_subtitle_path)
             
-            self.logger.info(f'视频处理完成: {output_path}')
+            self.logger.info(f'视频处理完成')
             return {
                 'audio': audio_path,
                 'subtitle': subtitle_path,
-                'video': output_path,
+                # 'video': output_path,
                 'translated_subtitle': translated_subtitle_path,
-                'translated_video': translated_video_path
+                # 'translated_video': translated_video_path
             }
         
         except Exception as e:
@@ -56,14 +56,15 @@ class VideoProcessor:
         subtitle_paths = self.subtitle_extractor.batch_extract(language=language)
         translated_subtitle_paths = self.subtitle_translator.batch_translate(target_language=translate_to)
         
-        output_paths = self.video_composer.batch_compose()
+        # output_paths = self.video_composer.batch_compose()
         
-        self.logger.info(f'批量处理完成，共处理 {len(output_paths)} 个视频')
+        # self.logger.info(f'批量处理完成，共处理 {len(output_paths)} 个视频')
+        self.logger.info(f'批量处理完成')
         return {
             'audio_files': audio_paths,
             'subtitle_files': subtitle_paths,
             'translated_subtitle_files': translated_subtitle_paths,
-            'video_files': output_paths
+            # 'video_files': output_paths
         }
 
 
@@ -99,8 +100,8 @@ def main():
         print(f'音频: {result["audio"]}')
         print(f'字幕: {result["subtitle"]}')
         print(f'翻译字幕: {result["translated_subtitle"]}')
-        print(f'输出视频: {result["video"]}')
-        print(f'翻译字幕视频: {result["translated_video"]}')
+        # print(f'输出视频: {result["video"]}')
+        # print(f'翻译字幕视频: {result["translated_video"]}')
 
 
 if __name__ == '__main__':

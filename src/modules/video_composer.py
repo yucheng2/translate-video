@@ -67,7 +67,7 @@ class VideoComposer:
                     font_size=self.config.get('subtitle_font_size', 24),
                     color=self.config.get('subtitle_font_color', 'white')
                 )
-                txt_clip = txt_clip.set_position('center').set_start(sub['start']).set_end(sub['end'])
+                txt_clip = txt_clip.with_position('center').with_start(sub['start']).with_end(sub['end'])
                 subtitle_clips.append(txt_clip)
             
             final_video = CompositeVideoClip([video] + subtitle_clips)

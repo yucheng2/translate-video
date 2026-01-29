@@ -7,7 +7,7 @@ class SubtitleTranslator:
     def __init__(self, config, api_key=None):
         self.config = config
         self.logger = Logger('SubtitleTranslator')
-        self.api_key = api_key
+        self.api_key = api_key or self.config.get('siliconflow_api_key')
         self.api_base = "https://api.siliconflow.cn/v1"
         self.model_name = "Pro/Qwen/Qwen2.5-7B-Instruct"
     
