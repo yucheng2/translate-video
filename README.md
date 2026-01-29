@@ -41,22 +41,30 @@ pip install -r requirements.txt
 
 ## 使用方法
 
-### 单个视频处理
+### 单个视频处理（带翻译）
 
 ```bash
-python main.py --input /path/to/video.mp4 --language zh
+python main.py --input /path/to/video.mp4 --language zh --translate-to en
 ```
 
-### 批量处理
+### 批量处理（带翻译）
 
 ```bash
-python main.py --batch --input /path/to/video/directory --language en
+python main.py --batch --input /path/to/video/directory --language zh --translate-to en
+```
+
+### 使用 OpenAI API 进行翻译
+
+```bash
+python main.py --input /path/to/video.mp4 --language zh --translate-to en --openai-api-key YOUR_API_KEY
 ```
 
 ### 参数说明
 
 - `--input, -i`: 输入视频文件或目录
 - `--language, -l`: 音频语言（如：zh, en）
+- `--translate-to, -t`: 目标翻译语言（默认：en）
+- `--openai-api-key`: OpenAI API 密钥（用于字幕翻译）
 - `--config, -c`: 配置文件路径
 - `--batch, -b`: 批量处理模式
 
