@@ -1,5 +1,6 @@
 import requests
 from pathlib import Path
+from tqdm import tqdm
 from ..utils.logger import Logger
 
 
@@ -38,7 +39,7 @@ class SubtitleTranslator:
             
             subtitles = self._parse_srt(subtitle_path)
             
-            for sub in subtitles:
+            for sub in tqdm(subtitles, desc='翻译字幕', unit='条'):
                 translated_text = self._translate_text(sub['text'], target_language)
                 sub['translated_text'] = translated_text
             
@@ -103,7 +104,7 @@ class SubtitleTranslator:
         subtitle_files = list(Path(subtitle_dir).glob('*.srt'))
         
         translated_paths = []
-        for subtitle_file in subtitle_files:
+        for subtitle_file in tqdm(subtitle_files, desc='批量翻译字幕', unit='文件'):
             if f'_{target_language}.' not in str(subtitle_file):
                 try:
                     translated_path = self.translate_subtitle(str(subtitle_file), target_language)

@@ -12,12 +12,10 @@ test_subtitle = '''1
 00:00:05,000 --> 00:00:10,000
 这是一个测试字幕。'''
 
-# 硅基流动API密钥
-SILICON_FLOW_API_KEY = 'sk-pzcisdgyxzlpjwaylyyvcnrvxwwdbjoyoixcppmbtxydqalx'
 
 # 初始化配置和翻译器
 config = Config()
-translator = SubtitleTranslator(config, SILICON_FLOW_API_KEY)
+translator = SubtitleTranslator(config)
 
 # 创建临时字幕文件
 with tempfile.NamedTemporaryFile(mode='w', suffix='.srt', delete=False, encoding='utf-8') as f:
