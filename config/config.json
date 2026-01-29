@@ -1,0 +1,16 @@
+{
+  "input_dir": "input",
+  "output_dir": "output",
+  "audio_output_dir": "output/audio",
+  "subtitle_output_dir": "output/subtitles",
+  "video_output_dir": "output/videos",
+  "audio_format": "wav",
+  "subtitle_format": "srt",
+  "video_format": "mp4",
+  "whisper_model": "base",
+  "video_codec": "libx264",
+  "audio_codec": "aac",
+  "subtitle_font_size": 24,
+  "subtitle_font_color": "white",
+  "subtitle_position": "bottom"
+}
