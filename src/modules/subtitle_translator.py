@@ -11,6 +11,7 @@ class SubtitleTranslator:
         self.api_key = api_key or self.config.get('siliconflow_api_key')
         self.api_base = "https://api.siliconflow.cn/v1"
         self.model_name = "Pro/Qwen/Qwen2.5-7B-Instruct"
+        self.max_translation_chars = self.config.get('max_translation_chars', 4000)
     
     def _parse_srt(self, srt_path):
         subtitles = []
@@ -39,9 +40,18 @@ class SubtitleTranslator:
             
             subtitles = self._parse_srt(subtitle_path)
             
-            for sub in tqdm(subtitles, desc='翻译字幕', unit='条'):
-                translated_text = self._translate_text(sub['text'], target_language)
-                sub['translated_text'] = translated_text
+            batches = self._group_subtitles(subtitles)
+            
+            for batch in tqdm(batches, desc='翻译字幕批次', unit='批次'):
+                batch_texts = [sub['text'] for sub in batch]
+                combined_text = '|||'.join(batch_texts)
+                
+                translated_combined = self._translate_text(combined_text, target_language)
+                
+                translated_texts = self._split_translated_text(translated_combined, len(batch))
+                
+                for sub, translated_text in zip(batch, translated_texts):
+                    sub['translated_text'] = translated_text
             
             if output_path is None:
                 subtitle_name = Path(subtitle_path).stem
@@ -56,6 +66,49 @@ class SubtitleTranslator:
             self.logger.error(f'字幕翻译失败: {str(e)}')
             raise
     
+    def _group_subtitles(self, subtitles):
+        batches = []
+        current_batch = []
+        current_chars = 0
+        
+        for sub in subtitles:
+            text = sub['text']
+            text_chars = len(text)
+            
+            if current_chars + text_chars > self.max_translation_chars and current_batch:
+                batches.append(current_batch)
+                current_batch = []
+                current_chars = 0
+            
+            current_batch.append(sub)
+            current_chars += text_chars
+        
+        if current_batch:
+            batches.append(current_batch)
+        
+        return batches
+    
+    def _split_translated_text(self, translated_text, expected_count):
+        parts = translated_text.split('|||')
+        
+        if len(parts) == expected_count:
+            return [part.strip() for part in parts]
+        
+        if len(parts) < expected_count:
+            result = [part.strip() for part in parts]
+            while len(result) < expected_count:
+                result.append('')
+            return result
+        
+        result = []
+        for i in range(expected_count):
+            if i < len(parts):
+                result.append(parts[i].strip())
+            else:
+                result.append('')
+        
+        return result
+    
     def _translate_text(self, text, target_language):
         try:
             if self.api_key:
@@ -67,7 +120,7 @@ class SubtitleTranslator:
                 payload = {
                     "model": self.model_name,
                     "messages": [
-                        {"role": "system", "content": f"You are a professional translator. Translate the following text to {target_language} accurately."},
+                        {"role": "system", "content": f"You are a professional translator. Your task is to translate the ENTIRE following text to {target_language} accurately. IMPORTANT RULES: 1. The input contains multiple subtitle segments separated by |||. 2. You MUST translate EVERY segment, WITHOUT OMITTING ANY CONTENT. 3. You MUST separate the translated segments with |||. 4. You MUST keep the same number of segments as the input. 5. Do NOT add any extra text or explanations. 6. Translate the text completely and accurately."},
                         {"role": "user", "content": text}
                     ],
                     "temperature": 0.3
@@ -81,7 +134,13 @@ class SubtitleTranslator:
                 
                 response.raise_for_status()
                 result = response.json()
-                return result['choices'][0]['message']['content'].strip()
+                translated_content = result['choices'][0]['message']['content'].strip()
+                # 检查翻译结果是否为空或与原文相同
+                if not translated_content or translated_content == text:
+                    self.logger.warning(f'Translation may have failed, returning original text: {text[:50]}...')
+                else:
+                    self.logger.info(f'Translation successful, first 100 chars: {translated_content[:100]}...')
+                return translated_content
             else:
                 # 模拟翻译（实际项目中应该使用真实的翻译API）
                 self.logger.warning('No API key provided, using mock translation')
@@ -97,7 +156,7 @@ class SubtitleTranslator:
                 f.write(f'{sub["time"]}\n')
                 f.write(f'{sub.get("translated_text", sub["text"])}\n\n')
     
-    def batch_translate(self, subtitle_dir=None, target_language='en'):
+    def batch_translate(self, subtitle_dir=None, target_language='en', overwrite=False):
         if subtitle_dir is None:
             subtitle_dir = self.config.subtitle_output_dir
         
@@ -105,7 +164,7 @@ class SubtitleTranslator:
         
         translated_paths = []
         for subtitle_file in tqdm(subtitle_files, desc='批量翻译字幕', unit='文件'):
-            if f'_{target_language}.' not in str(subtitle_file):
+            if overwrite or f'_{target_language}.' not in str(subtitle_file):
                 try:
                     translated_path = self.translate_subtitle(str(subtitle_file), target_language)
                     translated_paths.append(translated_path)

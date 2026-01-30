@@ -13,5 +13,6 @@
   "subtitle_font_size": 24,
   "subtitle_font_color": "white",
   "subtitle_position": "bottom",
-  "siliconflow_api_key": "sk-pzcisdgyxzlpjwaylyyvcnrvxwwdbjoyoixcppmbtxydqalx"
+  "siliconflow_api_key": "sk-pzcisdgyxzlpjwaylyyvcnrvxwwdbjoyoixcppmbtxydqalx",
+  "max_translation_chars": 4000
 }
