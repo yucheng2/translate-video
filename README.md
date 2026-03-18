@@ -81,3 +81,12 @@ python main.py --batch --input /path/to/video/directory --language zh
 ## 下载bilibili视频
 
 https://www.hellotik.app/zh/bilibili
+
+
+## 问题
+
+1. warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+
+无影响
+
+
