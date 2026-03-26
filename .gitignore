@@ -3,3 +3,4 @@ input/
 output/
 logs/
 **/__pycache__/**
+.agents/
