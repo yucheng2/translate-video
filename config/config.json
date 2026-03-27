@@ -14,5 +14,6 @@
   "subtitle_font_color": "white",
   "subtitle_position": "bottom",
   "siliconflow_api_key": "sk-pzcisdgyxzlpjwaylyyvcnrvxwwdbjoyoixcppmbtxydqalx",
-  "max_translation_chars": 4000
+  "max_translation_chars": 4000,
+  "whisper_model_url": "https://hf-mirror.com/openai/whisper-base/resolve/main/pytorch_model.bin"
 }

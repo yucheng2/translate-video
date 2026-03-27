@@ -89,4 +89,35 @@ https://www.hellotik.app/zh/bilibili
 
 无影响
 
+## 使用Docker Compose
+
+### 构建和启动服务
+
+```bash
+docker-compose up --build
+```
+
+### 访问应用
+
+- 前端应用: http://localhost:3000
+- 后端API: http://localhost:8000
+
+### 停止服务
+
+```bash
+docker-compose down
+```
+
+### 目录说明
+
+- `input/`: 放入需要处理的视频文件
+- `output/`: 存放处理结果（音频和字幕）
+- `config/`: 配置文件
+
+### 注意事项
+
+1. 首次构建可能需要较长时间，因为需要下载依赖和模型
+2. 处理大视频文件可能需要更多的内存和CPU资源
+3. 确保Docker已正确安装并运行
+
 

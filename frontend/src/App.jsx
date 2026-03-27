@@ -14,10 +14,6 @@ function App() {
   const playerRef = useRef(null)
   const playerInstance = useRef(null)
 
-  const openBilibiliDownload = () => {
-    window.open('https://www.hellotik.app/zh/bilibili', '_blank')
-  }
-
   const openUploadModal = () => {
     setIsUploadModalOpen(true)
   }
@@ -25,6 +21,49 @@ function App() {
   const closeUploadModal = () => {
     setIsUploadModalOpen(false)
     setUploadProgress(0)
+  }
+
+  const clearVideo = () => {
+    // 销毁播放器
+    if (playerInstance.current) {
+      playerInstance.current.destroy()
+      playerInstance.current = null
+    }
+    // 释放视频URL
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl)
+    }
+    // 重置状态
+    setCurrentVideo(null)
+    setVideoUrl(null)
+    setSubtitles([])
+  }
+
+  const downloadSubtitles = () => {
+    // 将字幕转换为SRT格式
+    let srtContent = ''
+    subtitles.forEach((subtitle, index) => {
+      srtContent += `${index + 1}\n`
+      srtContent += `${subtitle.time.replace(' - ', ' --> ')}\n`
+      srtContent += `${subtitle.text}\n\n`
+    })
+    
+    // 创建下载链接
+    const blob = new Blob([srtContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'subtitles.srt'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const downloadAudio = () => {
+    // 这里需要调用后端API来获取音频文件
+    // 暂时使用模拟实现
+    alert('音频下载功能正在开发中，敬请期待！')
   }
 
   const handleFileUpload = async (e) => {
@@ -76,7 +115,7 @@ function App() {
       formData.append('file', file)
 
       // 调用后端 API
-      const response = await fetch('http://localhost:8000/api/process-video', {
+      const response = await fetch('/api/process-video', {
         method: 'POST',
         body: formData
       })
@@ -200,19 +239,73 @@ function App() {
       </header>
       
       <main className="app-main">
-        <div className="button-container">
-          <button 
-            className="btn btn-primary" 
-            onClick={openBilibiliDownload}
-          >
-            下载视频
-          </button>
-          <button 
-            className="btn btn-secondary" 
-            onClick={openUploadModal}
-          >
-            解析视频
-          </button>
+        {/* 操作区 */}
+        <div className="operation-area">
+          <div className="operation-row">
+            <button 
+              className="btn btn-secondary" 
+              onClick={openUploadModal}
+            >
+              解析视频
+            </button>
+          </div>
+          <div className="operation-row">
+            <a 
+              href="https://www.hellotik.app/zh/bilibili" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="download-link"
+            >
+              下载视频
+            </a>
+            {videoUrl && (
+              <button 
+                className="btn btn-clear" 
+                onClick={clearVideo}
+              >
+                清空
+              </button>
+            )}
+          </div>
+        </div>
+        
+        <div className="main-content">
+          {/* 使用教程 */}
+          {!videoUrl && (
+            <div className="tutorial-section">
+              <h2>使用教程</h2>
+              <div className="tutorial-steps">
+                <div className="tutorial-step">
+                  <div className="step-number">1</div>
+                  <div className="step-content">
+                    <h3>下载视频</h3>
+                    <p>点击上方的"下载视频"链接，打开B站视频解析网页，下载你想要解析的视频。</p>
+                  </div>
+                </div>
+                <div className="tutorial-step">
+                  <div className="step-number">2</div>
+                  <div className="step-content">
+                    <h3>上传视频</h3>
+                    <p>点击"解析视频"按钮，在弹出的窗口中选择下载好的视频文件。</p>
+                  </div>
+                </div>
+                <div className="tutorial-step">
+                  <div className="step-number">3</div>
+                  <div className="step-content">
+                    <h3>等待解析</h3>
+                    <p>上传完成后，系统会自动解析视频并提取字幕。</p>
+                  </div>
+                </div>
+                <div className="tutorial-step">
+                  <div className="step-number">4</div>
+                  <div className="step-content">
+                    <h3>查看结果</h3>
+                    <p>解析完成后，你可以在页面上看到视频播放器和提取的字幕。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {isUploadModalOpen && (
@@ -262,6 +355,18 @@ function App() {
             <h2>解析结果</h2>
             <div className="video-player-container">
               <div ref={playerRef}></div>
+            </div>
+            
+            {/* 下载按钮 */}
+            <div className="download-buttons">
+              {subtitles.length > 0 && (
+                <button 
+                  className="btn btn-download" 
+                  onClick={() => downloadSubtitles()}
+                >
+                  下载字幕
+                </button>
+              )}
             </div>
             
             {/* 字幕列表 */}
